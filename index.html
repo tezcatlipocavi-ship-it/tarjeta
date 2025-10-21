@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tarjeta para Lorenza</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(to bottom right, #ffe6f0, #ffd6e8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    font-family: "Segoe UI", sans-serif;
+    position: relative;
+  }
+
+  /* Overlay inicial */
+  #overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,230,240,0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    flex-direction: column;
+    text-align: center;
+  }
+  #overlay button {
+    background: #ff69b4;
+    border: none;
+    padding: 15px 30px;
+    color: white;
+    font-size: 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  }
+
+  .card {
+    width: 600px;
+    height: 350px;
+    perspective: 1500px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 3s ease-in-out;
+  }
+
+  .card.open .card-inner {
+    transform: rotateY(-180deg);
+  }
+
+  .card-front {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #ffc0cb;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 50px;
+    backface-visibility: hidden;
+  }
+
+  .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    backface-visibility: hidden;
+    transform: rotateY(180deg);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .left, .right {
+    width: 50%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .left {
+    background-color: #ffe4ec;
+    overflow: hidden;
+  }
+
+  .left img {
+    width: 0;
+    height: 100%;
+    object-fit: cover;
+    transition: width 40s linear;
+  }
+
+  .right {
+    background-color: #ffe4ec;
+    color: #b03060;
+    font-size: 20px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  .text {
+    opacity: 0;
+    transition: opacity 2s ease-in-out;
+  }
+
+  #flowers {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .flower {
+    position: absolute;
+    top: -50px;
+    font-size: 32px;
+    animation: fall linear infinite;
+  }
+
+  @keyframes fall {
+    0% {transform: translateY(-10vh) rotate(0deg); opacity: 0;}
+    10% {opacity: 1;}
+    100% {transform: translateY(120vh) rotate(360deg); opacity: 0;}
+  }
+</style>
+</head>
+<body>
+
+<!-- Música -->
+ <audio id="music" src="sound/PAS DE DEUX - Mariinsky Orchestra.mp3" loop></audio>
+
+<!-- Overlay inicial -->
+<div id="overlay">
+  <h1>✨ Tarjeta para Lorenza ✨</h1>
+  <p>Haz clic en el botón para abrir la tarjeta y escuchar la música</p>
+  <button id="startBtn">Abrir Tarjeta 🎵</button>
+</div>
+
+<!-- Tarjeta -->
+<div class="card" id="card">
+  <div class="card-inner">
+    <div class="card-front">💌</div>
+    <div class="card-back">
+      <div class="left">
+        <img id="cardImage" src="lupiydan.png" alt="Imagen" />
+      </div>
+      <div class="right">
+        <div class="text" id="cardText"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="flowers"></div>
+
+<script>
+  // --- Flores ---
+  const flowerContainer = document.getElementById("flowers");
+  const emojis = ["🌹","🌹","🌹","🌸","🌺"];
+  function random(min,max){return Math.random()*(max-min)+min;}
+  function createFlower(){
+    const f = document.createElement("div");
+    f.className = "flower";
+    f.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    f.style.left = random(0,100)+"%";
+    f.style.fontSize = random(20,50)+"px";
+    f.style.animationDuration = random(10,25)+"s";
+    flowerContainer.appendChild(f);
+    setTimeout(()=>f.remove(),25000);
+  }
+  setInterval(createFlower,500);
+
+  // --- Tarjeta ---
+  const card = document.getElementById("card");
+  const cardImage = document.getElementById("cardImage");
+  const cardText = document.getElementById("cardText");
+  const music = document.getElementById("music");
+  const texto = "Lorenza Guadalupe Ruiz Pérez, aunque estés lejos, siempre te llevo en mi corazón ❤️";
+
+  function openCard(){
+    if(!card.classList.contains("open")){
+      card.classList.add("open");
+      cardImage.style.width = "100%";
+      cardText.style.opacity = 1;
+      let i=0;
+      function typeWriter(){
+        if(i<texto.length){
+          cardText.innerHTML += texto.charAt(i);
+          i++;
+          setTimeout(typeWriter, 150);
+        }
+      }
+      typeWriter();
+      // Cierra la tarjeta después de 90 segundos
+      setTimeout(()=>{
+        card.classList.remove("open");
+        cardImage.style.width = "0";
+        cardText.innerHTML = "";
+        music.pause();
+      },90000);
+    }
+  }
+
+  // --- Iniciar con overlay ---
+  const overlay = document.getElementById("overlay");
+  const startBtn = document.getElementById("startBtn");
+  startBtn.addEventListener("click", ()=>{
+    // Reproducir música (interacción directa)
+    music.play();
+    overlay.style.display = "none"; // quitar overlay
+    openCard(); // abrir tarjeta
+  });
+
+  // También se puede volver a abrir si se hace clic en la tarjeta
+  card.addEventListener("click", openCard);
+</script>
+
+</body>
+</html>
+
